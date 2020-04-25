@@ -25,13 +25,11 @@ const Player = styled.div`
 let fPlayer = null
 let aPlayer = null
 
-function flowPlayerActive() {
-    aPlayer.pause = true
-    fPlayer.seekTo(aPlayer.currentTime / 10)
-}
-function artPlayerActive() {
-    fPlayer.stop()
+function artPlayerSeekTo() {
     aPlayer.seek = fPlayer.video.time
+}
+function flowPlayerSeekTo(value) {
+    fPlayer.seek(value)
 }
 
 export default function({ options, setPlayer, setCurrentTime }) {
@@ -77,7 +75,12 @@ export default function({ options, setPlayer, setCurrentTime }) {
                     });
 
                     art.on('play', () => {
-                        artPlayerActive()
+                        fPlayer.stop()
+                    });
+
+                    art.on('pause', () => {
+                        setCurrentTime(art.currentTime);
+                        flowPlayerSeekTo(art.currentTime)
                     });
                 }}
             />
@@ -97,12 +100,12 @@ export default function({ options, setPlayer, setCurrentTime }) {
                 speedPlugin={true}
                 speeds={[1, 5, 10]}
                 onResume={() => {
-                    flowPlayerActive()
+                    aPlayer.pause = true
                 }}
                 getPlayerApi={player => {
                     fPlayer = player
                     fPlayer.on('pause', () => {
-                        artPlayerActive()
+                        artPlayerSeekTo()
                     });
                 }}
             />
